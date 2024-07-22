@@ -1,4 +1,4 @@
-package com.wl2c.elswhereuserservice.global.config;
+package com.wl2c.elswhereuserservice.global.config.swagger;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
