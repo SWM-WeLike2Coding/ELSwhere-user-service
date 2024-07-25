@@ -1,5 +1,9 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
+import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyNicknameException;
+import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestNickNameChangeDto;
+import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +25,22 @@ import java.util.Random;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final UserInfoService userInfoService;
+
+    @Transactional
+    public void changeNickname(Long userId, RequestNickNameChangeDto dto) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        checkAlreadyNickname(dto.getNickname());
+        user.changeNickName(dto.getNickname());
+        userInfoService.invalidateUserInfo(userId);
+    }
+
+    public void checkAlreadyNickname(String nickname) {
+        if (userRepository.findByNickname(nickname).isPresent()) {
+            throw new AlreadyNicknameException();
+        }
+    }
 
     public String createRandomNickname() {
         List<String> adjectives = new ArrayList<>();
