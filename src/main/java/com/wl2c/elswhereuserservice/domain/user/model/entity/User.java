@@ -25,6 +25,7 @@ public class User extends BaseEntity {
     private String socialId;
 
     @NotNull
+    @Enumerated(STRING)
     private SocialType socialType;
 
     @NotNull
