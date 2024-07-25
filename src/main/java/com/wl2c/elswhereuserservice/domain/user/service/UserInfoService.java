@@ -35,6 +35,10 @@ public class UserInfoService {
         );
     }
 
+    public void invalidateUserInfo(Long userId) {
+        memoryRepository.removeUserInfo(userId);
+    }
+
     public void cacheUserInfo(Long userId, User user) {
         UserInfo userInfo = new UserInfo(user);
         memoryRepository.setUserInfo(userId, userInfo, Instant.now(clock));
