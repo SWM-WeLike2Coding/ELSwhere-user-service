@@ -1,5 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
+import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.SocialType;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInfoDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
@@ -45,4 +46,14 @@ class UserInfoServiceTest {
         assertThat(info.isAdmin()).isEqualTo(user.getUserRole().isAdmin());
     }
 
+    @Test
+    @DisplayName("Full 내 정보 가져오기 실패 - 찾을 수 없는 아이디")
+    void failedGetUserInfoByNotFound() {
+        // given
+        when(userRepository.findById(0L)).thenReturn(Optional.empty());
+
+        // when
+        assertThrows(UserNotFoundException.class, () ->
+                userInfoService.getFullUserInfo(0L));
+    }
 }
