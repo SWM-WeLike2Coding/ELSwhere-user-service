@@ -1,5 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
+import com.wl2c.elswhereuserservice.domain.user.exception.HoldingNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestUpdateHoldingDto;
@@ -41,11 +42,23 @@ public class UserHoldingService {
 
     @Transactional
     public void update(Long userId, RequestUpdateHoldingDto requestUpdateHoldingDto) {
-        if (userRepository.findById(userId).isPresent()) {
+        Holding holding = userHoldingRepository.findById(requestUpdateHoldingDto.getHoldingId()).orElseThrow(HoldingNotFoundException::new);
 
+        if (holding.getUser().getId().equals(userId)) {
             userHoldingRepository.updateHolding(userId,
                     requestUpdateHoldingDto.getHoldingId(),
                     requestUpdateHoldingDto.getPrice());
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    @Transactional
+    public void delete(Long userId, Long holdingId) {
+        Holding holding = userHoldingRepository.findById(holdingId).orElseThrow(HoldingNotFoundException::new);
+
+        if (holding.getUser().getId().equals(userId)) {
+            userHoldingRepository.deleteHolding(userId, holdingId);
         } else {
             throw new UserNotFoundException();
         }

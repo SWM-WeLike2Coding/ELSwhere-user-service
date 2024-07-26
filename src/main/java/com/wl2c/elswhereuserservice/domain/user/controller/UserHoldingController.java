@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import static java.lang.Long.parseLong;
@@ -32,12 +33,21 @@ public class UserHoldingController {
     }
 
     /**
-     * 보유 상품 금액 수정
+     * 특정 보유 상품 금액 수정
      * @param dto 보유 상품 수정을 위한 정보(상품 id, 금액)
      */
     @PatchMapping
     public void update(HttpServletRequest request,
                        @Valid @RequestBody RequestUpdateHoldingDto dto) {
         userHoldingService.update(parseLong(request.getHeader("requestId")), dto);
+    }
+
+    /**
+     * 특정 보유 상품 삭제
+     */
+    @DeleteMapping
+    public void update(HttpServletRequest request,
+                       @RequestParam Long holdingId) {
+        userHoldingService.delete(parseLong(request.getHeader("requestId")), holdingId);
     }
 }
