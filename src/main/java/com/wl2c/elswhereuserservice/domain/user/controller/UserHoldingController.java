@@ -1,6 +1,7 @@
 package com.wl2c.elswhereuserservice.domain.user.controller;
 
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestUpdateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserHoldingService;
 import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,5 +31,13 @@ public class UserHoldingController {
         return userHoldingService.create(parseLong(request.getHeader("requestId")), dto);
     }
 
-
+    /**
+     * 보유 상품 금액 수정
+     * @param dto 보유 상품 수정을 위한 정보(상품 id, 금액)
+     */
+    @PatchMapping
+    public void update(HttpServletRequest request,
+                       @Valid @RequestBody RequestUpdateHoldingDto dto) {
+        userHoldingService.update(parseLong(request.getHeader("requestId")), dto);
+    }
 }

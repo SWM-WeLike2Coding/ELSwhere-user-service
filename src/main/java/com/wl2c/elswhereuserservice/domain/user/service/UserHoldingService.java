@@ -2,6 +2,7 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestUpdateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.Holding;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserHoldingRepository;
@@ -36,5 +37,17 @@ public class UserHoldingService {
         userHoldingRepository.save(holdings);
 
         return new ResponseIdDto(holdings.getId());
+    }
+
+    @Transactional
+    public void update(Long userId, RequestUpdateHoldingDto requestUpdateHoldingDto) {
+        if (userRepository.findById(userId).isPresent()) {
+
+            userHoldingRepository.updateHolding(userId,
+                    requestUpdateHoldingDto.getHoldingId(),
+                    requestUpdateHoldingDto.getPrice());
+        } else {
+            throw new UserNotFoundException();
+        }
     }
 }
