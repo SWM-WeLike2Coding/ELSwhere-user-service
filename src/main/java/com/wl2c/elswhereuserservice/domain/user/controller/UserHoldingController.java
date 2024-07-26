@@ -2,6 +2,7 @@ package com.wl2c.elswhereuserservice.domain.user.controller;
 
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserHoldingService;
+import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,11 +22,13 @@ public class UserHoldingController {
     /**
      * 보유 상품 등록
      * @param dto 상품 등록을 위한 정보(상품 id, 금액)
+     * @return 보유 상품 id
      */
     @PostMapping
-    public void create(HttpServletRequest request,
-                       @Valid @RequestBody RequestCreateHoldingDto dto) {
-        userHoldingService.create(parseLong(request.getHeader("requestId")), dto);
+    public ResponseIdDto create(HttpServletRequest request,
+                                @Valid @RequestBody RequestCreateHoldingDto dto) {
+        return userHoldingService.create(parseLong(request.getHeader("requestId")), dto);
     }
+
 
 }

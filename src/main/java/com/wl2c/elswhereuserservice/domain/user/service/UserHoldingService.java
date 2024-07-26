@@ -6,6 +6,7 @@ import com.wl2c.elswhereuserservice.domain.user.model.entity.Holding;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserHoldingRepository;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
+import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class UserHoldingService {
     private final UserHoldingRepository userHoldingRepository;
 
     @Transactional
-    public void create(Long userId, RequestCreateHoldingDto requestCreateHoldingDto) {
+    public ResponseIdDto create(Long userId, RequestCreateHoldingDto requestCreateHoldingDto) {
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
@@ -33,5 +34,7 @@ public class UserHoldingService {
                 .price(requestCreateHoldingDto.getPrice())
                 .build();
         userHoldingRepository.save(holdings);
+
+        return new ResponseIdDto(holdings.getId());
     }
 }

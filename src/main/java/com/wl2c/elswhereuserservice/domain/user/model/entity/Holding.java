@@ -17,7 +17,7 @@ public class Holding extends BaseEntity {
 
     @Id
     @GeneratedValue
-    @Column(name = "holdings_id")
+    @Column(name = "holding_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
