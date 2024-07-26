@@ -4,6 +4,9 @@ import com.wl2c.elswhereuserservice.domain.user.model.SocialType;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestNickNameChangeDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
+import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
+import com.wl2c.elswhereuserservice.global.auth.jwt.JwtAuthenticationToken;
+import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
 import com.wl2c.elswhereuserservice.mock.UserMock;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,11 +19,15 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    private JwtProvider jwtProvider;
 
     @Mock
     private UserRepository userRepository;
@@ -47,5 +54,25 @@ class UserServiceTest {
         // then
         assertThat(user.getNickname()).isEqualTo(dto.getNickname());
         verify(cacheService).invalidateUserInfo(user.getId());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급")
+    void refreshToken() {
+        // given
+        AuthenticationToken token = JwtAuthenticationToken.builder()
+                .accessToken("newaccess")
+                .refreshToken("refresh")
+                .build();
+        when(jwtProvider.getAccessTokenFromHeader(any())).thenReturn(Optional.of("access"));
+        when(jwtProvider.reissue("access", "refresh"))
+                .thenReturn(token);
+
+        // when
+        userService.refreshToken(null, "refresh");
+
+        // then
+        assertThat(token.getAccessToken()).isEqualTo("newaccess");
+        assertThat(token.getRefreshToken()).isEqualTo("refresh");
     }
 }

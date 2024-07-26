@@ -3,8 +3,13 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyNicknameException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestNickNameChangeDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseRefreshTokenDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
+import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
+import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
+import com.wl2c.elswhereuserservice.global.exception.AccessTokenNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +29,7 @@ import java.util.Random;
 @Slf4j
 public class UserService {
 
+    private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
     private final UserInfoService userInfoService;
@@ -40,6 +46,12 @@ public class UserService {
         if (userRepository.findByNickname(nickname).isPresent()) {
             throw new AlreadyNicknameException();
         }
+    }
+
+    public ResponseRefreshTokenDto refreshToken(HttpServletRequest request, String refreshToken) {
+        String accessToken = jwtProvider.getAccessTokenFromHeader(request).orElseThrow(AccessTokenNotFoundException::new);
+        AuthenticationToken token = jwtProvider.reissue(accessToken, refreshToken);
+        return new ResponseRefreshTokenDto(token);
     }
 
     public String createRandomNickname() {
