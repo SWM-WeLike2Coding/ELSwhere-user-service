@@ -8,6 +8,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static jakarta.persistence.EnumType.STRING;
 
 @Entity
@@ -44,6 +47,9 @@ public class User extends BaseEntity {
 
     @Enumerated(STRING)
     private UserRole userRole;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Holding> holdingList = new ArrayList<>();
 
     @Builder
     private User (@NonNull String socialId,
