@@ -16,4 +16,10 @@ public interface UserHoldingRepository extends JpaRepository<Holding, Long> {
     void updateHolding(@Param("userId") Long userId,
                        @Param("id") Long id,
                        @Param("price") BigDecimal price);
+
+    @Modifying(clearAutomatically = true)
+    @Query("delete from Holding h " +
+            "where h.id = :id and h.user.id = :userId ")
+    void deleteHolding(@Param("userId") Long userId,
+                       @Param("id") Long id);
 }
