@@ -19,7 +19,7 @@ public class GoogleOAuth2Controller {
     private final GoogleOAuth2Service googleOAuth2Service;
 
     @GetMapping("/callback")
-    public ResponseLoginDto callback(@RequestParam("code") String code) {
+    public ResponseEntity<String> callback(@RequestParam("code") String code) {
         return googleOAuth2Service.processCallback(code);
     }
 

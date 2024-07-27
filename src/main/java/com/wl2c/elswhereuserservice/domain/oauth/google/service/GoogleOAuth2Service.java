@@ -62,7 +62,7 @@ public class GoogleOAuth2Service {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public ResponseLoginDto processCallback(String code) {
+    public ResponseEntity<String> processCallback(String code) {
         try {
             // 구글로부터 토큰(엑세스, 리프레쉬) 요청
             Map<String, String> tokenRequest = new HashMap<>();
@@ -108,10 +108,12 @@ public class GoogleOAuth2Service {
                 } else {
                     user = optionalUser.get();
                 }
+                // 백엔드 서버에서 서비스를 위한 자체 토큰 발급
                 AuthenticationToken token = jwtProvider.issue(user);
                 userInfoService.cacheUserInfo(user.getId(), user);
 
-                return new ResponseLoginDto(token);
+                String redirectUrl = "flutteroauth://callback?access_token=" + token.getAccessToken() + "&refresh_token=" + token.getRefreshToken();
+                return ResponseEntity.status(302).header("Location", redirectUrl).build();
 
             } else {
                 throw new FailedToReceiveGoogleOAuth2TokenException();
