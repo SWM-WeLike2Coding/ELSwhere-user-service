@@ -112,7 +112,7 @@ public class GoogleOAuth2Service {
                 AuthenticationToken token = jwtProvider.issue(user);
                 userInfoService.cacheUserInfo(user.getId(), user);
 
-                String redirectUrl = "flutteroauth://callback?access_token=" + token.getAccessToken() + "&refresh_token=" + token.getRefreshToken();
+                String redirectUrl = "elswhere://callback?access_token=" + token.getAccessToken() + "&refresh_token=" + token.getRefreshToken();
                 return ResponseEntity.status(302).header("Location", redirectUrl).build();
 
             } else {
