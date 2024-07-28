@@ -1,5 +1,8 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
+import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
+import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSingleProductDto;
+import com.wl2c.elswhereuserservice.client.product.exception.ProductNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.HoldingNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
@@ -8,6 +11,7 @@ import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserHoldingRepository;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
 import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,21 +28,31 @@ public class UserHoldingService {
     private final UserRepository userRepository;
     private final UserHoldingRepository userHoldingRepository;
 
+    private final ProductServiceClient productServiceClient;
+
     @Transactional
     public ResponseIdDto create(Long userId, RequestCreateHoldingDto requestCreateHoldingDto) {
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        // TODO: product_id가 존재하는지 검증이 필요할 것 같음
+        ResponseSingleProductDto responseSingleProductDto;
+        try {
+            responseSingleProductDto = productServiceClient.getProduct(requestCreateHoldingDto.getProductId());
+        } catch (FeignException e) {
+            throw new ProductNotFoundException(e);
+        }
 
-        Holding holdings = Holding.builder()
-                .user(user)
-                .productId(requestCreateHoldingDto.getProductId())
-                .price(requestCreateHoldingDto.getPrice())
-                .build();
-        userHoldingRepository.save(holdings);
+        if (responseSingleProductDto.getId().equals(requestCreateHoldingDto.getProductId())) {
+            Holding holdings = Holding.builder()
+                    .user(user)
+                    .productId(requestCreateHoldingDto.getProductId())
+                    .price(requestCreateHoldingDto.getPrice())
+                    .build();
+            userHoldingRepository.save(holdings);
 
-        return new ResponseIdDto(holdings.getId());
+            return new ResponseIdDto(holdings.getId());
+        }
+        throw new ProductNotFoundException();
     }
 
     @Transactional
