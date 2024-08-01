@@ -3,6 +3,7 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
 import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSingleProductDto;
 import com.wl2c.elswhereuserservice.client.product.exception.ProductNotFoundException;
+import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyHoldingException;
 import com.wl2c.elswhereuserservice.domain.user.exception.HoldingNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
@@ -14,16 +15,21 @@ import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
 public class UserHoldingService {
+
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     private final UserRepository userRepository;
     private final UserHoldingRepository userHoldingRepository;
@@ -35,14 +41,13 @@ public class UserHoldingService {
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        ResponseSingleProductDto responseSingleProductDto;
-        try {
-            responseSingleProductDto = productServiceClient.getProduct(requestCreateHoldingDto.getProductId());
-        } catch (FeignException e) {
-            throw new ProductNotFoundException(e);
-        }
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("holdingCreateCircuitBreaker");
+        circuitBreaker.run(() -> productServiceClient.getProduct(requestCreateHoldingDto.getProductId()),
+                throwable -> new ProductNotFoundException());
 
-        if (responseSingleProductDto.getId().equals(requestCreateHoldingDto.getProductId())) {
+        if (userHoldingRepository.findByUserIdAndProductId(userId, requestCreateHoldingDto.getProductId()).isPresent()) {
+            throw new AlreadyHoldingException();
+        } else {
             Holding holdings = Holding.builder()
                     .user(user)
                     .productId(requestCreateHoldingDto.getProductId())
@@ -52,7 +57,6 @@ public class UserHoldingService {
 
             return new ResponseIdDto(holdings.getId());
         }
-        throw new ProductNotFoundException();
     }
 
     @Transactional
