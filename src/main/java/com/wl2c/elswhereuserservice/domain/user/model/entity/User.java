@@ -1,5 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.user.model.entity;
 
+import com.wl2c.elswhereuserservice.domain.user.service.UserInfoService;
 import com.wl2c.elswhereuserservice.domain.user.model.SocialType;
 import com.wl2c.elswhereuserservice.domain.user.model.UserStatus;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
@@ -18,6 +19,8 @@ import static jakarta.persistence.EnumType.STRING;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User extends BaseEntity {
+
+    public static String DELETED_USER = "탈퇴한 회원";
 
     @Id
     @GeneratedValue
@@ -71,6 +74,20 @@ public class User extends BaseEntity {
         this.userRole = userRole;
     }
 
+    public String getName() {
+        if (!getUserStatus().isActive()) {
+            return DELETED_USER;
+        }
+        return this.name;
+    }
+
+    public String getNickname() {
+        if (!getUserStatus().isActive()) {
+            return DELETED_USER;
+        }
+        return this.nickname;
+    }
+
     /**
      * 닉네임을 변경합니다.
      *
@@ -78,5 +95,15 @@ public class User extends BaseEntity {
      */
     public void changeNickName(String nickname) {
         this.nickname = nickname;
+    }
+
+    /**
+     * User 상태를 변경합니다.
+     * User정보 캐시를 삭제하기위해 {@link UserInfoService}.invalidateUserInfo를 호출해야 합니다.
+     *
+     * @param userStatus 상태
+     */
+    public void changeStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
     }
 }
