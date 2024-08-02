@@ -6,6 +6,7 @@ import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseRefre
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInfoDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserInfoService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserService;
+import com.wl2c.elswhereuserservice.domain.user.service.UserWithdrawService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserInfoService userInfoService;
+    private final UserWithdrawService userWithdrawService;
 
     /**
      * 내 정보 조회
@@ -54,5 +56,16 @@ public class UserController {
     public ResponseRefreshTokenDto refreshToken(HttpServletRequest request,
                                                 @Valid @RequestBody RequestRefreshTokenDto dto) {
         return userService.refreshToken(request, dto.getRefreshToken());
+    }
+
+    /**
+     * 회원탈퇴
+     *
+     * <p>회원은 바로 삭제되지 않고, 7일 뒤에 서버 배치작업에 의해 자동 삭제됩니다.</p>
+     * <p>회원 관련 조회시에는 '탈퇴한 회원'이라고 조회됩니다.</p>
+     */
+    @DeleteMapping
+    public void withdraw(HttpServletRequest request) {
+        userWithdrawService.withdraw(parseLong(request.getHeader("requestId")));
     }
 }
