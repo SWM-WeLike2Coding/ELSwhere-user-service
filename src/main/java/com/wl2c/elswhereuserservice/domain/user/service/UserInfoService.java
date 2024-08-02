@@ -27,6 +27,7 @@ public class UserInfoService {
         // TODO : 좋아요 수 등등 추가 정보 가져오기
 
         return new ResponseUserInfoDto(
+                user.getCreatedAt(),
                 user.getSocialType(),
                 user.getEmail(),
                 user.getName(),
