@@ -1,9 +1,8 @@
-package com.wl2c.elswhereuserservice.domain.user.model.dto.response;
+package com.wl2c.elswhereuserservice.domain.user.model.dto.list;
 
 import com.wl2c.elswhereuserservice.client.product.ProductType;
 import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
-public class ResponseUserInterestDto {
+public class SummarizedUserInterestDto {
 
     @Schema(description = "사용자 관심 상품 id", example = "1")
     private final Long interestId;
@@ -43,8 +42,8 @@ public class ResponseUserInterestDto {
     @Schema(description = "청약 마감일", example = "2024-06-21")
     private final LocalDate subscriptionEndDate;
 
-    public ResponseUserInterestDto(@NonNull Long interestId,
-                                   @NonNull ResponseSummarizedProductDto responseSummarizedProductDto) {
+    public SummarizedUserInterestDto(@NonNull Long interestId,
+                                     @NonNull ResponseSummarizedProductDto responseSummarizedProductDto) {
         this.interestId = interestId;
         this.productId = responseSummarizedProductDto.getId();
         this.issuer = responseSummarizedProductDto.getIssuer();
