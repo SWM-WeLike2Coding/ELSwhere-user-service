@@ -1,8 +1,7 @@
 package com.wl2c.elswhereuserservice.domain.user.controller;
 
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateInterestDto;
-import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInterestDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.list.SummarizedUserInterestDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserInterestService;
 import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,7 +40,7 @@ public class UserInterestController {
      * @return 사용자가 등록한 관심 상품 리스트
      */
     @GetMapping
-    public List<ResponseUserInterestDto> read(HttpServletRequest request) {
+    public List<SummarizedUserInterestDto> read(HttpServletRequest request) {
         return userInterestService.read(parseLong(request.getHeader("requestId")));
     }
 
