@@ -2,20 +2,18 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 
 import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
 import com.wl2c.elswhereuserservice.client.product.dto.request.RequestProductIdListDto;
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSingleProductDto;
 import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
 import com.wl2c.elswhereuserservice.client.product.exception.ProductNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyInterestException;
 import com.wl2c.elswhereuserservice.domain.user.exception.InterestNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateInterestDto;
-import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInterestDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.list.SummarizedUserInterestDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.Interest;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserInterestRepository;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
 import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
@@ -25,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +42,11 @@ public class UserInterestService {
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
+        log.info("Before call the product microservice");
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("interestCreateCircuitBreaker");
         circuitBreaker.run(() -> productServiceClient.getProduct(requestCreateInterestDto.getProductId()),
                 throwable -> new ProductNotFoundException());
+        log.info("After called the product microservice");
 
         if (userInterestRepository.findByUserIdAndProductId(userId, requestCreateInterestDto.getProductId()).isPresent()) {
             throw new AlreadyInterestException();
@@ -62,7 +61,7 @@ public class UserInterestService {
         }
     }
 
-    public List<ResponseUserInterestDto> read(Long userId) {
+    public List<SummarizedUserInterestDto> read(Long userId) {
         List<Interest> interestList = userInterestRepository.findAllByUserId(userId);
         if (interestList.isEmpty()) {
             throw new InterestNotFoundException();
@@ -72,16 +71,18 @@ public class UserInterestService {
                 .map(Interest::getProductId)
                 .toList();
 
+        log.info("Before call the product microservice");
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("interestReadCircuitBreaker");
         List<ResponseSummarizedProductDto> responseSummarizedProductDtoList =
                 circuitBreaker.run(() -> productServiceClient.listByProductIds(new RequestProductIdListDto(productIdList)),
                 throwable -> new ArrayList<>());
+        log.info("fter called the product microservice");
 
-        List<ResponseUserInterestDto> result = new ArrayList<>();
+        List<SummarizedUserInterestDto> result = new ArrayList<>();
         for (Interest interest : interestList) {
             for (ResponseSummarizedProductDto responseSummarizedProductDto : responseSummarizedProductDtoList) {
                 if (interest.getProductId().equals(responseSummarizedProductDto.getId())) {
-                    result.add(new ResponseUserInterestDto(interest.getId(), responseSummarizedProductDto));
+                    result.add(new SummarizedUserInterestDto(interest.getId(), responseSummarizedProductDto));
                     break;
                 }
             }
