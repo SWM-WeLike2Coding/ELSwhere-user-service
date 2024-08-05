@@ -1,7 +1,7 @@
 package com.wl2c.elswhereuserservice.global.debug.service;
 
 import com.wl2c.elswhereuserservice.global.debug.model.ErrorLog;
-import com.wl2c.elswhereuserservice.global.error.ErrorResponseDto;
+import com.wl2c.elswhereuserservice.global.model.dto.ErrorResponseDto;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
 
