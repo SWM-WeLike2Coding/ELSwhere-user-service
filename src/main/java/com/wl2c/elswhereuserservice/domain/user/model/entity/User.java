@@ -57,6 +57,10 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interestList = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private InvestmentPropensity investmentPropensity;
+
     @Builder
     private User (@NonNull String socialId,
                   @NonNull SocialType socialType,
