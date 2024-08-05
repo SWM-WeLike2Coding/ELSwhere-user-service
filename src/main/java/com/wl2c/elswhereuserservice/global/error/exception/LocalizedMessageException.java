@@ -1,4 +1,4 @@
-package com.wl2c.elswhereuserservice.global.exception;
+package com.wl2c.elswhereuserservice.global.error.exception;
 
 import lombok.Getter;
 import org.springframework.context.MessageSource;
