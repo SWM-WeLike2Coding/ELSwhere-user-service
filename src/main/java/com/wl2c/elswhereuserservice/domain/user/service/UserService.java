@@ -8,7 +8,7 @@ import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
 import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
-import com.wl2c.elswhereuserservice.global.exception.AccessTokenNotFoundException;
+import com.wl2c.elswhereuserservice.global.error.exception.AccessTokenNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

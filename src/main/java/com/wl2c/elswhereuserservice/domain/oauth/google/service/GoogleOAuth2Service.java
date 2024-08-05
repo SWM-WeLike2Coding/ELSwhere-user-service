@@ -1,12 +1,9 @@
 package com.wl2c.elswhereuserservice.domain.oauth.google.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wl2c.elswhereuserservice.domain.oauth.google.exception.FailedToReceiveGoogleOAuth2TokenException;
-import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.SocialType;
 import com.wl2c.elswhereuserservice.domain.user.model.UserStatus;
-import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseLoginDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
 import com.wl2c.elswhereuserservice.domain.user.service.UserInfoService;
@@ -14,7 +11,7 @@ import com.wl2c.elswhereuserservice.domain.user.service.UserService;
 import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
-import com.wl2c.elswhereuserservice.global.exception.FailedOAuthCallbackProcessingException;
+import com.wl2c.elswhereuserservice.global.error.exception.FailedOAuthCallbackProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
