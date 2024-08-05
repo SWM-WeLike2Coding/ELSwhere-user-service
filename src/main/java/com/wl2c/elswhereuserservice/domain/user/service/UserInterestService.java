@@ -64,7 +64,7 @@ public class UserInterestService {
     public List<SummarizedUserInterestDto> read(Long userId) {
         List<Interest> interestList = userInterestRepository.findAllByUserId(userId);
         if (interestList.isEmpty()) {
-            throw new InterestNotFoundException();
+            return new ArrayList<>();
         }
 
         List<Long> productIdList = interestList.stream()
