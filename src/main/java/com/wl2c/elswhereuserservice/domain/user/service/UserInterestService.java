@@ -76,7 +76,7 @@ public class UserInterestService {
         List<ResponseSummarizedProductDto> responseSummarizedProductDtoList =
                 circuitBreaker.run(() -> productServiceClient.listByProductIds(new RequestProductIdListDto(productIdList)),
                 throwable -> new ArrayList<>());
-        log.info("fter called the product microservice");
+        log.info("after called the product microservice");
 
         List<SummarizedUserInterestDto> result = new ArrayList<>();
         for (Interest interest : interestList) {

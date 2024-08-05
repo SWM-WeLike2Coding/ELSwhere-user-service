@@ -1,6 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.oauth.google.exception;
 
-import com.wl2c.elswhereuserservice.global.exception.LocalizedMessageException;
+import com.wl2c.elswhereuserservice.global.error.exception.LocalizedMessageException;
 import org.springframework.http.HttpStatus;
 
 public class FailedToReceiveGoogleOAuth2TokenException extends LocalizedMessageException {

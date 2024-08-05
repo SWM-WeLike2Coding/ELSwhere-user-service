@@ -2,8 +2,8 @@ package com.wl2c.elswhereuserservice.global.auth.jwt;
 
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
-import com.wl2c.elswhereuserservice.global.exception.ExpiredTokenException;
-import com.wl2c.elswhereuserservice.global.exception.InvalidTokenException;
+import com.wl2c.elswhereuserservice.global.error.exception.ExpiredTokenException;
+import com.wl2c.elswhereuserservice.global.error.exception.InvalidTokenException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
