@@ -2,6 +2,7 @@ package com.wl2c.elswhereuserservice.global.error;
 
 import com.wl2c.elswhereuserservice.global.debug.service.ErrorLogService;
 import com.wl2c.elswhereuserservice.global.error.exception.*;
+import com.wl2c.elswhereuserservice.global.model.dto.ErrorResponseDto;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.wl2c.elswhereuserservice.global.debug.model;
 
-import com.wl2c.elswhereuserservice.global.error.ErrorResponseDto;
+import com.wl2c.elswhereuserservice.global.model.dto.ErrorResponseDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

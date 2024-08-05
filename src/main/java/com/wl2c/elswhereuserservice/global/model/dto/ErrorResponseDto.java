@@ -1,4 +1,4 @@
-package com.wl2c.elswhereuserservice.global.error;
+package com.wl2c.elswhereuserservice.global.model.dto;
 
 import com.wl2c.elswhereuserservice.global.error.exception.LocalizedMessageException;
 import lombok.Getter;
