@@ -1,7 +1,9 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
+import com.wl2c.elswhereuserservice.domain.user.exception.SurveyNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateInvestmentPropensityDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseInvestmentPropensityDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.InvestmentPropensity;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserRepository;
@@ -42,4 +44,14 @@ public class UserInvestmentPropensityService {
 
         }
     }
+
+    public ResponseInvestmentPropensityDto read(Long userId) {
+        InvestmentPropensity investmentPropensity = userInvestmentPropensityRepository.findByUserId(userId).orElseThrow(SurveyNotFoundException::new);
+        return new ResponseInvestmentPropensityDto(investmentPropensity);
+    }
+
+    public void checkSurveyParticipation(Long userId) {
+        userInvestmentPropensityRepository.findByUserId(userId).orElseThrow(SurveyNotFoundException::new);
+    }
+
 }
