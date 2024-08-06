@@ -15,9 +15,9 @@ import java.util.List;
 @FeignClient(name = "product-service")
 public interface ProductServiceClient {
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/v1/product/{productId}")
     ResponseSingleProductDto getProduct(@PathVariable Long productId);
 
-    @PostMapping("/product/list")
+    @PostMapping("/v1/product/list")
     List<ResponseSummarizedProductDto> listByProductIds(@Valid @RequestBody RequestProductIdListDto requestProductIdListDto);
 }
