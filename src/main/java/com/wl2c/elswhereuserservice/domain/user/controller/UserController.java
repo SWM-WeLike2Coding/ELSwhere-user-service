@@ -59,6 +59,14 @@ public class UserController {
     }
 
     /**
+     * 로그아웃
+     */
+    @GetMapping("/logout")
+    public void logout(HttpServletRequest request) {
+        userService.logout(request);
+    }
+
+    /**
      * 회원탈퇴
      *
      * <p>회원은 바로 삭제되지 않고, 7일 뒤에 서버 배치작업에 의해 자동 삭제됩니다.</p>
