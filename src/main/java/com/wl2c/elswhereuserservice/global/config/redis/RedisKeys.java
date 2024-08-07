@@ -2,7 +2,7 @@ package com.wl2c.elswhereuserservice.global.config.redis;
 
 public class RedisKeys {
     public static final String KEY_DELIMITER = ":";
-    public static final String SIGNUP_AUTH_KEY = "signupAuth";
+    public static final String USER_LOGOUT_KEY = "logout";
     public static final String USER_INFO_CACHE_KEY = "userInfo";
 
     public static String combine(Object key1, Object key2) {

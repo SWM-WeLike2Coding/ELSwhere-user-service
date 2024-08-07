@@ -57,6 +57,10 @@ public class JwtProvider {
                 .build();
     }
 
+    public Duration getExpirationDuration(String accessToken, LocalDateTime now) {
+        return Duration.ofMillis(getExpiration(accessToken).getTime() - getTimeFrom(now));
+    }
+
     private String refreshAccessToken(String accessToken) {
         String userId;
         UserRole role;
@@ -124,4 +128,12 @@ public class JwtProvider {
         }
     }
 
+    private static long getTimeFrom(LocalDateTime now) {
+        return Date.from(now.atZone(ZoneId.systemDefault()).toInstant()).getTime();
+    }
+
+    private Date getExpiration(String accessToken) {
+        Jws<Claims> claimsJws = validateAccessToken(accessToken);
+        return claimsJws.getBody().getExpiration();
+    }
 }
