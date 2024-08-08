@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 public class RequestNickNameChangeDto {
     @NotBlank
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 16)
     @Pattern(regexp = "^(?!.*\\s{2,})[A-Za-z\\dㄱ-ㅎㅏ-ㅣ가-힣_ ]{3,16}$")
     @Schema(description = "새로운 닉네임", example = "돈을 잃지 말자")
     private final String nickname;

@@ -37,6 +37,12 @@ public class UserController {
 
     /**
      * 닉네임 변경
+     * <p>
+     *     조건<br/>
+     *     문자열은 영어 대문자, 소문자, 숫자, 한글 자모 및 음절, 언더스코어, 공백만 포함될 수 있습니다.<br/>
+     *     문자열의 길이는 3자에서 16자 사이여야 합니다.<br/>
+     *     문자열 내에 두 개 이상의 연속된 공백이 없어야 합니다.<br/>
+     * </p>
      *
      * @param dto 요청 body
      */
@@ -44,6 +50,16 @@ public class UserController {
     public void changeNickName(HttpServletRequest request,
                                @Valid @RequestBody RequestNickNameChangeDto dto) {
         userService.changeNickname(parseLong(request.getHeader("requestId")), dto);
+    }
+
+    /**
+     * 닉네임 중복 확인
+     *
+     * @param dto 요청 body
+     */
+    @PostMapping("/check/nickname")
+    public void checkAlreadyNickname(@Valid @RequestBody RequestNickNameChangeDto dto) {
+        userService.checkAlreadyNickname(dto.getNickname());
     }
 
     /**
