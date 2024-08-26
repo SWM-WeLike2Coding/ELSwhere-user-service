@@ -1,5 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.user.controller;
 
+import com.wl2c.elswhereuserservice.domain.user.model.dto.list.SummarizedUserHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserHoldingService;
 import com.wl2c.elswhereuserservice.global.model.dto.ResponseIdDto;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static java.lang.Long.parseLong;
 
@@ -36,6 +38,14 @@ public class UserHoldingController {
     public ResponseIdDto create(HttpServletRequest request,
                                 @Valid @RequestBody RequestCreateHoldingDto dto) {
         return userHoldingService.create(parseLong(request.getHeader("requestId")), dto);
+    }
+
+    /**
+     * 사용자의 보유 상품 리스트 조회
+     */
+    @GetMapping
+    public List<SummarizedUserHoldingDto> read(HttpServletRequest request) {
+        return userHoldingService.read(parseLong(request.getHeader("requestId")));
     }
 
     /**
