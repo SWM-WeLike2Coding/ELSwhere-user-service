@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class ProductLikeMessageReceiver {
     private final UserRepository userRepository;
     private final UserProductLikeRepository productLikeRepository;
 
+    @Transactional
     @KafkaListener(topics = "product-like", groupId = "product-like-consumer", containerFactory = "kafkaConsumerContainerFactory")
     public void receive(String stringMessage) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -37,7 +39,7 @@ public class ProductLikeMessageReceiver {
         if (productLikeMessage.getLikeState().equals(LikeState.LIKED)) {
             productLikeRepository.save(new ProductLike(user, productLikeMessage.getProductId()));
         } else if (productLikeMessage.getLikeState().equals(LikeState.CANCELLED)) {
-            productLikeRepository.deleteByProductIdAndUserId(user.getId(), productLikeMessage.getProductId());
+            productLikeRepository.deleteByProductIdAndUserId(productLikeMessage.getProductId(), user.getId());
         }
     }
 }
