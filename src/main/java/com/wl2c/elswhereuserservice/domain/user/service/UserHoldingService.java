@@ -113,7 +113,7 @@ public class UserHoldingService {
         log.info("Before call the analysis microservice");
         CircuitBreaker circuitBreakerAboutAnalysis = circuitBreakerFactory.create("holdingReadCircuitBreakerAboutAnalysis");
         List<ResponsePriceRatioDto> responsePriceRatioDtoList =
-                circuitBreakerAboutAnalysis.run(() -> analysisServiceClient.getPriceRatioList(new RequestProductIdListDto(productIdList)),
+                circuitBreakerAboutAnalysis.run(() -> analysisServiceClient.getPriceRatioList(new RequestProductIdListDto(productIdList), String.valueOf(userId)),
                         throwable -> new ArrayList<>());
         log.info("after called the analysis microservice");
 
