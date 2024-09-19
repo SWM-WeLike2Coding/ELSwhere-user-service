@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
@@ -13,5 +14,6 @@ import java.util.List;
 public interface AnalysisServiceClient {
 
     @PostMapping("/v1/product/price/ratio/list")
-    List<ResponsePriceRatioDto> getPriceRatioList(@Valid @RequestBody RequestProductIdListDto requestProductIdListDto);
+    List<ResponsePriceRatioDto> getPriceRatioList(@Valid @RequestBody RequestProductIdListDto requestProductIdListDto,
+                                                  @RequestHeader("requestId") String requestId);
 }
