@@ -108,22 +108,28 @@ public class AppleOAuth2Service {
 
     @Transactional
     public Map<String, String> getTokens(Map<String, Object> params, HttpServletResponse httpServletResponse) throws Exception {
+
         // 최초 인증 시에만 이름이 옴
         String authorizationCode = params.get("code").toString();
         String firstName;
         String lastName;
         String fullName = "";
         try {
+
             // 'userJson'을 JSON으로 변환
             Map<String, Object> userMap = objectMapper.readValue(params.get("user").toString(), Map.class);
 
             // 'userMap'에서 사용자의 이름과 이메일 추출
-            firstName = (String) ((Map<String, Object>) userMap.get("name")).get("firstName");
-            lastName = (String) ((Map<String, Object>) userMap.get("name")).get("lastName");
-            fullName = (lastName + " " + firstName).trim();
+            if (!userMap.isEmpty()) {
+                firstName = (String) ((Map<String, Object>) userMap.get("name")).get("firstName");
+                lastName = (String) ((Map<String, Object>) userMap.get("name")).get("lastName");
+                fullName = (lastName + " " + firstName).trim();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         // Apple OAuth 클라이언트 ID, 팀 ID, 키 ID 및 비밀 키
         String clientId = appleClientId;
         String teamId = appleTeamId;
