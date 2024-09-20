@@ -16,6 +16,7 @@ import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,11 +34,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppleOAuth2Service {
-    private static final Logger log = LoggerFactory.getLogger(AppleOAuth2Service.class);
-    private final UserRepository userRepository;
-    private final UserService userService;
-    private final JwtProvider jwtProvider;
+
     @Value("${oauth2.apple.client-id}")
     private String appleClientId;
 
@@ -62,12 +61,14 @@ public class AppleOAuth2Service {
     @Value("${oauth2.apple.revoke-token-uri}")
     private String appleRevokeTokenUri;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final UserService userService;
     private final UserInfoService userInfoService;
     private final AppleJwtTokenProvider tokenProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
     public ResponseEntity<?> handleAppleOAuthCallback(Map<String, Object> params, HttpServletResponse response) throws Exception {
@@ -107,22 +108,28 @@ public class AppleOAuth2Service {
 
     @Transactional
     public Map<String, String> getTokens(Map<String, Object> params, HttpServletResponse httpServletResponse) throws Exception {
+
         // 최초 인증 시에만 이름이 옴
         String authorizationCode = params.get("code").toString();
         String firstName;
         String lastName;
         String fullName = "";
         try {
+
             // 'userJson'을 JSON으로 변환
             Map<String, Object> userMap = objectMapper.readValue(params.get("user").toString(), Map.class);
 
             // 'userMap'에서 사용자의 이름과 이메일 추출
-            firstName = (String) ((Map<String, Object>) userMap.get("name")).get("firstName");
-            lastName = (String) ((Map<String, Object>) userMap.get("name")).get("lastName");
-            fullName = (lastName + " " + firstName).trim();
+            if (!userMap.isEmpty()) {
+                firstName = (String) ((Map<String, Object>) userMap.get("name")).get("firstName");
+                lastName = (String) ((Map<String, Object>) userMap.get("name")).get("lastName");
+                fullName = (lastName + " " + firstName).trim();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         // Apple OAuth 클라이언트 ID, 팀 ID, 키 ID 및 비밀 키
         String clientId = appleClientId;
         String teamId = appleTeamId;
@@ -153,12 +160,9 @@ public class AppleOAuth2Service {
             if (response.getStatusCode().is2xxSuccessful()) {
                 // Apple 토큰 서버에 POST 요청
                 Map<String, String> tokenResponse = response.getBody();
-                String id_token = tokenResponse.get("id_token");
 
                 Map<String, Object> decodedJWT = JwtDecoder.decode(tokenResponse.get("id_token"));
                 userInfo = decodedJWT;
-                log.info(userInfo.toString());
-                log.info(tokenResponse.toString());
                 try {
                     Optional<User> optionalUser = userRepository.findBySocialId(userInfo.get("sub").toString());
                     User user;
@@ -176,19 +180,16 @@ public class AppleOAuth2Service {
                     } else {
                         user = optionalUser.get();
                     }
-
+                    // 백엔드 서버에서 서비스를 위한 자체 토큰 발급
                     AuthenticationToken token = jwtProvider.issue(user);
                     userInfoService.cacheUserInfo(user.getId(), user);
-
-                    // 응답에서 액세스 토큰 및 리프레시 토큰 추출
-                    String accessToken = tokenResponse.get("access_token");
-                    String refreshToken = tokenResponse.get("refresh_token");
 
                     result = new HashMap<>();
                     result.put("access_token", token.getAccessToken());
                     result.put("refresh_token", token.getRefreshToken());
 
                     return result;
+
                 } catch (Exception e) {
                     httpServletResponse.sendRedirect("elswhere://?error=invalid_token");
                     throw new FailedToReceiveAppleOAuth2TokenException();
