@@ -13,6 +13,7 @@ import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtDecoder;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,6 +68,35 @@ public class AppleOAuth2Service {
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserInfoService userInfoService;
     private final AppleJwtTokenProvider tokenProvider;
+
+    @Transactional
+    public ResponseEntity<?> handleAppleOAuthCallback(Map<String, Object> params, HttpServletResponse response) throws Exception {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("elswhere://");
+
+        if (params.containsKey("error")) {
+            String redirectUrl = builder.queryParam("error", params.get("error")).build().toUriString();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", redirectUrl);
+            return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+        }
+        // Apple OAuth 서비스로부터 액세스 토큰을 가져옴
+        Map<String, String> tokenResponse = getTokens(params, response);
+        String accessToken = tokenResponse.get("access_token");
+        String refreshToken = tokenResponse.get("refresh_token");
+
+        // 클라이언트 앱의 콜백 URL 스킴을 사용하여 리디렉션
+        String callbackUrl = builder
+                .queryParam("access_token", accessToken)
+                .queryParam("refresh_token", refreshToken)
+                .build().toUriString();
+
+        // 리디렉션을 위한 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", callbackUrl);
+
+        // 302 리디렉션 응답
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    }
 
     @Transactional
     public Map<String, String> getTokens(Map<String, Object> params, HttpServletResponse httpServletResponse) throws Exception {
