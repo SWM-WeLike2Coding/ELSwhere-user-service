@@ -8,8 +8,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
@@ -24,11 +26,11 @@ public class AppleJwtTokenProvider {
     public String createJwtToken(String clientId, String teamId, String keyId, String privateKeyPath) throws Exception {
         // Private key를 가져옴
         String privateKeyPem;
-        try (InputStream inputStream = getClass().getResourceAsStream(privateKeyPath)) {
-            if (inputStream == null) {
-                throw new IllegalArgumentException("Private key file not found: " + privateKeyPath);
-            }
-            privateKeyPem = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        try {
+            Path path = Path.of(privateKeyPath);
+            privateKeyPem = Files.readString(path, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Private key file not found: " + privateKeyPath, e);
         }
 
         // PEM에서 필요없는거 제거하고 base64로 디코드
