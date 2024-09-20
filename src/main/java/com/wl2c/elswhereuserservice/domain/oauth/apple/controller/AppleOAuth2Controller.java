@@ -23,14 +23,18 @@ public class AppleOAuth2Controller {
 
     private final AppleOAuth2Service appleOAuth2Service;
 
-    // Apple OAuth 인증 페이지로 리디렉션하는 엔드포인트
+    /**
+     * Apple OAuth 인증 페이지로 리디렉션하는 엔드포인트
+     */
     @GetMapping("/login")
     public void redirectToAppleOAuth(HttpServletResponse response) throws IOException {
         String authorizationUri = appleOAuth2Service.getAuthorizationUri();
         response.sendRedirect(authorizationUri);
     }
 
-    // Apple OAuth에서 인증 후 리디렉션될 콜백 엔드포인트
+    /**
+     * Apple OAuth에서 인증 후 리디렉션될 콜백 엔드포인트
+     */
     @PostMapping("/callback")
     public ResponseEntity<?> handleAppleOAuthCallback(@RequestParam Map<String, Object> params, HttpServletResponse response) throws Exception {
         return appleOAuth2Service.handleAppleOAuthCallback(params, response);
