@@ -81,6 +81,13 @@ public class AppleOAuth2Service {
         }
         // Apple OAuth 서비스로부터 액세스 토큰을 가져옴
         Map<String, String> tokenResponse = getTokens(params, response);
+        if (tokenResponse.containsKey("error")) {
+            String error = tokenResponse.get("error");
+            String redirectUrl = builder.queryParam("error", error).build().toUriString();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", redirectUrl);
+            return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+        }
         String accessToken = tokenResponse.get("access_token");
         String refreshToken = tokenResponse.get("refresh_token");
 
