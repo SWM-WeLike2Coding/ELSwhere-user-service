@@ -1,11 +1,16 @@
 package com.wl2c.elswhereuserservice.domain.user.service;
 
+import com.wl2c.elswhereuserservice.client.analysis.api.AnalysisServiceClient;
+import com.wl2c.elswhereuserservice.client.analysis.dto.response.ResponsePriceRatioDto;
 import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
+import com.wl2c.elswhereuserservice.client.product.dto.request.RequestProductIdListDto;
 import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSingleProductDto;
+import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductForHoldingDto;
 import com.wl2c.elswhereuserservice.client.product.exception.ProductNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyHoldingException;
 import com.wl2c.elswhereuserservice.domain.user.exception.HoldingNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.UserNotFoundException;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.list.SummarizedUserHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestCreateHoldingDto;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.Holding;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.User;
@@ -21,7 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +44,7 @@ public class UserHoldingService {
     private final UserHoldingRepository userHoldingRepository;
 
     private final ProductServiceClient productServiceClient;
+    private final AnalysisServiceClient analysisServiceClient;
 
     @Transactional
     public ResponseIdDto create(Long userId, RequestCreateHoldingDto requestCreateHoldingDto) {
@@ -81,6 +91,57 @@ public class UserHoldingService {
         } else {
             throw new UserNotFoundException();
         }
+    }
+
+    public List<SummarizedUserHoldingDto> read(Long userId) {
+        List<Holding> holdingList = userHoldingRepository.findAllByUserId(userId);
+        if (holdingList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Long> productIdList = holdingList.stream()
+                .map(Holding::getProductId)
+                .toList();
+
+        log.info("Before call the product microservice");
+        CircuitBreaker circuitBreakerAboutProduct = circuitBreakerFactory.create("holdingReadCircuitBreakerAboutProduct");
+        List<ResponseSummarizedProductForHoldingDto> responseSummarizedProductForHoldingDtoList =
+                circuitBreakerAboutProduct.run(() -> productServiceClient.holdingListByProductIds(new RequestProductIdListDto(productIdList)),
+                        throwable -> new ArrayList<>());
+        log.info("after called the product microservice");
+
+        log.info("Before call the analysis microservice");
+        CircuitBreaker circuitBreakerAboutAnalysis = circuitBreakerFactory.create("holdingReadCircuitBreakerAboutAnalysis");
+        List<ResponsePriceRatioDto> responsePriceRatioDtoList =
+                circuitBreakerAboutAnalysis.run(() -> analysisServiceClient.getPriceRatioList(new RequestProductIdListDto(productIdList), String.valueOf(userId)),
+                        throwable -> new ArrayList<>());
+        log.info("after called the analysis microservice");
+
+        // 상품 ID를 키로 하는 Map 생성
+        Map<Long, ResponseSummarizedProductForHoldingDto> productMap = responseSummarizedProductForHoldingDtoList.stream()
+                .collect(Collectors.toMap(ResponseSummarizedProductForHoldingDto::getId, dto -> dto));
+
+        // 상품 ID를 키로 하는 Map 생성
+        Map<Long, ResponsePriceRatioDto> priceRatioMap = responsePriceRatioDtoList.stream()
+                .collect(Collectors.toMap(ResponsePriceRatioDto::getId, dto -> dto));
+
+        return holdingList.stream()
+                .map(holding -> {
+                    Long productId = holding.getProductId();
+                    ResponseSummarizedProductForHoldingDto productDto = productMap.get(productId);
+                    ResponsePriceRatioDto priceRatioDto = priceRatioMap.get(productId);
+
+                    if (productDto == null) {
+                        return null;
+                    } else if (priceRatioDto == null) {
+                        return new SummarizedUserHoldingDto(holding, productDto, null);
+                    }
+
+                    return new SummarizedUserHoldingDto(holding, productDto, priceRatioDto);
+
+                })
+                .filter(Objects::nonNull)  // null 값 필터링
+                .toList();
     }
 
     // TODO: 전체 보유 상품 금액 합계(현재 보유중인 상품과 상환 완료한 상품 금액 구분해서 보여주는 리스트)

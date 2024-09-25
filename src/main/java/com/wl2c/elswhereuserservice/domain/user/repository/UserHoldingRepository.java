@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserHoldingRepository extends JpaRepository<Holding, Long> {
@@ -30,4 +31,7 @@ public interface UserHoldingRepository extends JpaRepository<Holding, Long> {
             "and h.productId = :productId ")
     Optional<Holding> findByUserIdAndProductId(@Param("userId") Long userId,
                                                 @Param("productId") Long productId);
+
+    @Query("select h from Holding h where h.user.id = :userId ")
+    List<Holding> findAllByUserId(@Param("userId") Long userId);
 }

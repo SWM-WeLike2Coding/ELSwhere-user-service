@@ -12,6 +12,7 @@ import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
 import com.wl2c.elswhereuserservice.global.error.exception.FailedOAuthCallbackProcessingException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -59,7 +61,7 @@ public class GoogleOAuth2Service {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public ResponseEntity<String> processCallback(String code) {
+    public ResponseEntity<String> processCallback(String code, HttpServletResponse response) {
         try {
             // 구글로부터 토큰(엑세스, 리프레쉬) 요청
             Map<String, String> tokenRequest = new HashMap<>();
@@ -113,9 +115,15 @@ public class GoogleOAuth2Service {
                 return ResponseEntity.status(302).header("Location", redirectUrl).build();
 
             } else {
+                response.sendRedirect("elswhere://?error=invalid_token");
                 throw new FailedToReceiveGoogleOAuth2TokenException();
             }
         } catch (Exception e) {
+            try {
+                response.sendRedirect("elswhere://?error=invalid_token");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new FailedOAuthCallbackProcessingException(e);
         }
     }

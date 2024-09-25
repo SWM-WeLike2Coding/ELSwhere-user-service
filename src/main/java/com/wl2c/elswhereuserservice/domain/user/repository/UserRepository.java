@@ -19,6 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying(clearAutomatically = true)
     @Query("delete from User u " +
             "where u.userStatus = 'INACTIVE' " +
-            "and FUNCTION('DATEDIFF', u.lastModifiedAt, u.createdAt) >= :period ")
+            "and FUNCTION('DATEDIFF', CURRENT_TIMESTAMP, u.lastModifiedAt) >= :period ")
     void deleteAllByWithdrawnUser(@Param("period") Long period);
 }
