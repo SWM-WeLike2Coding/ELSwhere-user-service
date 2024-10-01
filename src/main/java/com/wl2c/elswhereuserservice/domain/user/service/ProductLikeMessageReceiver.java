@@ -37,7 +37,8 @@ public class ProductLikeMessageReceiver {
         User user = userRepository.findById(productLikeMessage.getUserId()).orElseThrow(UserNotFoundException::new);
 
         if (productLikeMessage.getLikeState().equals(LikeState.LIKED)) {
-            productLikeRepository.save(new ProductLike(user, productLikeMessage.getProductId()));
+            if (productLikeRepository.findByProductIdAndUserId(productLikeMessage.getProductId(), user.getId()).isEmpty())
+                productLikeRepository.save(new ProductLike(user, productLikeMessage.getProductId()));
         } else if (productLikeMessage.getLikeState().equals(LikeState.CANCELLED)) {
             productLikeRepository.deleteByProductIdAndUserId(productLikeMessage.getProductId(), user.getId());
         }
