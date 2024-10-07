@@ -12,6 +12,17 @@ public class UserMock {
     public static final String SOCIAL_ID = "12345678";
     public static final String NAME = "username";
     public static final String NICKNAME = "nickname";
+    public static final String EMAIL = "1234@gmail.com";
+    public static final String SOCIAL_TYPE = String.valueOf(SocialType.GOOGLE);
+
+    public static User createDummy() {
+        return createDummy(RandomGen.nextLong());
+    }
+
+    public static User createDummy(Long userId) {
+        return create(userId, NAME, SocialType.valueOf(SOCIAL_TYPE), EMAIL, UserRole.USER);
+    }
+
 
     public static User create(SocialType socialType, String email) {
         return create(RandomGen.nextLong(), NAME, socialType, email, UserRole.USER);
