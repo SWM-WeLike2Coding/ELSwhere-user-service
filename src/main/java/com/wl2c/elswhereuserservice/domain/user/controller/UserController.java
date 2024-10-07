@@ -4,6 +4,7 @@ import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestNickNam
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestRefreshTokenDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseRefreshTokenDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInfoDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserNicknameDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserInfoService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserWithdrawService;
@@ -33,6 +34,20 @@ public class UserController {
     @GetMapping
     public ResponseUserInfoDto getMyInfo(HttpServletRequest request) {
         return userInfoService.getFullUserInfo(parseLong(request.getHeader("requestId")));
+    }
+
+    /**
+     * 사용자 id에 대한 닉네임 조회
+     * <p>
+     *     게시글 작성자 조회 등, 서비스 통신 간에 사용되는 api 입니다. (관리자 권한)
+     * </p>
+     *
+     * @return 사용자 닉네임
+     */
+    @GetMapping("/nickname/{id}")
+    public ResponseUserNicknameDto getUserNickname(HttpServletRequest request,
+                                                   @PathVariable Long id) {
+        return userInfoService.getUserNickname(request.getHeader("requestRole"), id);
     }
 
     /**
