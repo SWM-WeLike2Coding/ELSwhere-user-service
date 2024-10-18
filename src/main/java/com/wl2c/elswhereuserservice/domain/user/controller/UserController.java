@@ -2,12 +2,20 @@ package com.wl2c.elswhereuserservice.domain.user.controller;
 
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestNickNameChangeDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestRefreshTokenDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.request.RequestIsAgreedToTermsDto;
+import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseLoginDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseRefreshTokenDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserInfoDto;
 import com.wl2c.elswhereuserservice.domain.user.model.dto.response.ResponseUserNicknameDto;
+import com.wl2c.elswhereuserservice.domain.user.service.SignupService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserInfoService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserService;
 import com.wl2c.elswhereuserservice.domain.user.service.UserWithdrawService;
+import com.wl2c.elswhereuserservice.global.model.dto.ErrorResponseDto;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,6 +33,7 @@ public class UserController {
     private final UserService userService;
     private final UserInfoService userInfoService;
     private final UserWithdrawService userWithdrawService;
+    private final SignupService signupService;
 
     /**
      * 내 정보 조회
@@ -87,6 +96,34 @@ public class UserController {
     public ResponseRefreshTokenDto refreshToken(HttpServletRequest request,
                                                 @Valid @RequestBody RequestRefreshTokenDto dto) {
         return userService.refreshToken(request, dto.getRefreshToken());
+    }
+
+    /**
+     * 회원가입
+     * <p>
+     *     각 Oauth를 통해 가입을 진행할 때,
+     *     서비스 이용 약관 페이지로 리다이렉션을 하면서 서버에서 건내준 signup_token을 해당 api에서 이용합니다.
+     * </p>
+     *
+     * @param dto           서비스 이용 약관 동의 여부 및 약관 버전에 대한 dto
+     * @param signupToken   회원가입 토큰
+     * @return              액세스 토큰 및 리프레쉬 토큰에 대한 dto
+     */
+    @PostMapping("/signup/{signup-token}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "액세스 토큰 및 리프레쉬 토큰에 대한 dto",
+                            content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseLoginDto.class))),
+            @ApiResponse(responseCode = "400", description = "OAuth 인증이 필요합니다.",
+                            content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "서비스 이용 약관 동의가 필요합니다.",
+                            content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    public ResponseLoginDto signup(@Valid @RequestBody RequestIsAgreedToTermsDto dto,
+                                   @PathVariable("signup-token") String signupToken) {
+        return signupService.signup(signupToken, dto);
     }
 
     /**
