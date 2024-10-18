@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GoogleOAuth2Service {
+public class GoogleOAuth2V1Service {
 
     @Value("${oauth2.google.client-id}")
     private String googleClientId;
@@ -41,8 +42,8 @@ public class GoogleOAuth2Service {
     @Value("${oauth2.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${oauth2.google.redirect-uri}")
-    private String googleRedirectUri;
+    @Value("${oauth2.google.redirect-uri-v1}")
+    private String googleRedirectUriV1;
 
     @Value("${oauth2.google.token-uri}")
     private String googleTokenUri;
@@ -61,14 +62,20 @@ public class GoogleOAuth2Service {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public ResponseEntity<String> processCallback(String code, HttpServletResponse response) {
+    public ResponseEntity<String> handleGoogleOAuthCallback(Map<String, String> params, HttpServletResponse response) {
+
+        String code = params.get("code");
+        if (params.containsKey("error")) {
+            return ResponseEntity.status(HttpStatus.SEE_OTHER).header("Location", "elswhere://?error=access_denied").build();
+        }
+
         try {
             // 구글로부터 토큰(엑세스, 리프레쉬) 요청
             Map<String, String> tokenRequest = new HashMap<>();
             tokenRequest.put("code", code);
             tokenRequest.put("client_id", googleClientId);
             tokenRequest.put("client_secret", googleClientSecret);
-            tokenRequest.put("redirect_uri", googleRedirectUri);
+            tokenRequest.put("redirect_uri", googleRedirectUriV1);
             tokenRequest.put("grant_type", "authorization_code");
 
             ResponseEntity<JsonNode> tokenResponse = restTemplate.postForEntity(googleTokenUri, tokenRequest, JsonNode.class);
@@ -131,7 +138,7 @@ public class GoogleOAuth2Service {
     public String getAuthorizationUri() {
         return googleAuthorizationUri
                 + "?client_id=" + googleClientId
-                + "&redirect_uri=" + googleRedirectUri
+                + "&redirect_uri=" + googleRedirectUriV1
                 + "&response_type=code"
                 + "&scope=profile email"
                 + "&access_type=offline"
