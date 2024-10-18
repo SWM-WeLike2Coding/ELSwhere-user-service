@@ -13,12 +13,9 @@ import com.wl2c.elswhereuserservice.global.auth.jwt.AuthenticationToken;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtDecoder;
 import com.wl2c.elswhereuserservice.global.auth.jwt.JwtProvider;
 import com.wl2c.elswhereuserservice.global.auth.role.UserRole;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -35,7 +32,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AppleOAuth2Service {
+public class AppleOAuth2V1Service {
 
     @Value("${oauth2.apple.client-id}")
     private String appleClientId;
@@ -46,8 +43,8 @@ public class AppleOAuth2Service {
     @Value("${oauth2.apple.team-id}")
     private String appleTeamId;
 
-    @Value("${oauth2.apple.redirect-uri}")
-    private String appleRedirectUri;
+    @Value("${oauth2.apple.redirect-uri-v1}")
+    private String appleRedirectUriV1;
 
     @Value("${oauth2.apple.key-path}")
     private String appleKeyPath;
@@ -92,17 +89,17 @@ public class AppleOAuth2Service {
         String accessToken = tokenResponse.get("access_token");
         String refreshToken = tokenResponse.get("refresh_token");
 
-        // 클라이언트 앱의 콜백 URL 스킴을 사용하여 리디렉션
+        // 클라이언트 앱의 콜백 URL 스킴을 사용하여 리다이렉션
         String callbackUrl = builder
                 .queryParam("access_token", accessToken)
                 .queryParam("refresh_token", refreshToken)
                 .build().toUriString();
 
-        // 리디렉션을 위한 헤더 설정
+        // 리다이렉션을 위한 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", callbackUrl);
 
-        // 302 리디렉션 응답
+        // 302 리다이렉션 응답
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
@@ -136,7 +133,7 @@ public class AppleOAuth2Service {
         String keyId = appleKeyId;
         String privateKeyPath = appleKeyPath;
         String tokenUri = appleTokenUri;
-        String redirectUri = appleRedirectUri;
+        String redirectUri = appleRedirectUriV1;
 
         // JWT 생성
         String clientSecret = tokenProvider.createJwtToken(clientId, teamId, keyId, privateKeyPath);
@@ -206,7 +203,7 @@ public class AppleOAuth2Service {
     public String getAuthorizationUri() {
         return appleAuthorizationUri
                 + "?client_id=" + appleClientId
-                + "&redirect_uri=" + appleRedirectUri
+                + "&redirect_uri=" + appleRedirectUriV1
                 + "&response_type=code"
                 + "&response_mode=form_post"
                 + "&scope=name email";
