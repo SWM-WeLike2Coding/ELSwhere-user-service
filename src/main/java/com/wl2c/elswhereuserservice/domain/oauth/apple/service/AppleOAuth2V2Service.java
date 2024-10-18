@@ -63,7 +63,7 @@ public class AppleOAuth2V2Service {
     @Value("${oauth2.apple.revoke-token-uri}")
     private String appleRevokeTokenUri;
 
-    private String fullName;
+    private String fullName = "";
 
     public static final String OAUTH_AUTH_NAME = "oauth";
 
