@@ -70,7 +70,7 @@ public class AppleOAuth2V1Service {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<String> handleAppleOAuthCallback(Map<String, Object> params, HttpServletResponse response) throws Exception {
 
         if (params.containsKey("error")) {
