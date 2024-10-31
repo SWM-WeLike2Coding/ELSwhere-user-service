@@ -38,4 +38,7 @@ public class ResponseSummarizedProductDto {
     @Schema(description = "청약 마감일", example = "2024-06-21")
     private final LocalDate subscriptionEndDate;
 
+    @Schema(description = "AI가 판단한 스텝다운 상품 안전도", example = "0.89")
+    private final BigDecimal safetyScore;
+
 }
