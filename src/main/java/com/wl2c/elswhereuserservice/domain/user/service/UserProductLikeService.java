@@ -2,7 +2,7 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 
 import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
 import com.wl2c.elswhereuserservice.client.product.dto.request.RequestProductIdListDto;
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
+import com.wl2c.elswhereuserservice.client.product.dto.list.SummarizedProductDto;
 import com.wl2c.elswhereuserservice.domain.user.exception.ProductLikeNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.model.entity.ProductLike;
 import com.wl2c.elswhereuserservice.domain.user.repository.UserProductLikeRepository;
@@ -31,7 +31,7 @@ public class UserProductLikeService {
         userProductLikeRepository.findByProductIdAndUserId(productId, userId).orElseThrow(ProductLikeNotFoundException::new);
     }
 
-    public List<ResponseSummarizedProductDto> findLikedProducts(Long userId) {
+    public List<SummarizedProductDto> findLikedProducts(Long userId) {
 
         // redis -> db로 dump 요청
         productServiceClient.dumpLike(String.valueOf(userId));
@@ -43,12 +43,12 @@ public class UserProductLikeService {
 
         log.info("Before call the product microservice");
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("likedProductReadCircuitBreaker");
-        List<ResponseSummarizedProductDto> responseSummarizedProductDtoList =
+        List<SummarizedProductDto> summarizedProductDtoList =
                 circuitBreaker.run(() -> productServiceClient.listByProductIds(new RequestProductIdListDto(productIdList)),
                         throwable -> new ArrayList<>());
         log.info("after called the product microservice");
 
-        return responseSummarizedProductDtoList;
+        return summarizedProductDtoList;
 
     }
 }

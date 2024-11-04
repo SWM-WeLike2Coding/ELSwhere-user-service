@@ -1,7 +1,7 @@
 package com.wl2c.elswhereuserservice.domain.user.model.dto.list;
 
 import com.wl2c.elswhereuserservice.client.product.ProductType;
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
+import com.wl2c.elswhereuserservice.client.product.dto.list.SummarizedProductDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NonNull;
@@ -46,18 +46,18 @@ public class SummarizedUserInterestDto {
     private final BigDecimal safetyScore;
 
     public SummarizedUserInterestDto(@NonNull Long interestId,
-                                     @NonNull ResponseSummarizedProductDto responseSummarizedProductDto) {
+                                     @NonNull SummarizedProductDto summarizedProductDto) {
         this.interestId = interestId;
-        this.productId = responseSummarizedProductDto.getId();
-        this.issuer = responseSummarizedProductDto.getIssuer();
-        this.name = responseSummarizedProductDto.getName();
-        this.productType = responseSummarizedProductDto.getProductType();
-        this.equities = responseSummarizedProductDto.getEquities();
-        this.yieldIfConditionsMet = responseSummarizedProductDto.getYieldIfConditionsMet();
-        this.knockIn = responseSummarizedProductDto.getKnockIn();
-        this.subscriptionStartDate = responseSummarizedProductDto.getSubscriptionStartDate();
-        this.subscriptionEndDate = responseSummarizedProductDto.getSubscriptionEndDate();
-        this.safetyScore = responseSummarizedProductDto.getSafetyScore();
+        this.productId = summarizedProductDto.getId();
+        this.issuer = summarizedProductDto.getIssuer();
+        this.name = summarizedProductDto.getName();
+        this.productType = summarizedProductDto.getProductType();
+        this.equities = summarizedProductDto.getEquities();
+        this.yieldIfConditionsMet = summarizedProductDto.getYieldIfConditionsMet();
+        this.knockIn = summarizedProductDto.getKnockIn();
+        this.subscriptionStartDate = summarizedProductDto.getSubscriptionStartDate();
+        this.subscriptionEndDate = summarizedProductDto.getSubscriptionEndDate();
+        this.safetyScore = summarizedProductDto.getSafetyScore();
     }
 
 }
