@@ -1,16 +1,16 @@
-package com.wl2c.elswhereuserservice.client.product.dto.response;
+package com.wl2c.elswhereuserservice.client.product.dto.list;
 
 import com.wl2c.elswhereuserservice.client.product.ProductType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
-@Builder
-public class ResponseSummarizedProductDto {
+@RequiredArgsConstructor
+public class SummarizedProductDto {
     @Schema(description = "상품 id", example = "1")
     private final Long id;
 

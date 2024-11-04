@@ -1,8 +1,8 @@
 package com.wl2c.elswhereuserservice.domain.user.model.entity;
 
 import com.wl2c.elswhereuserservice.domain.user.model.InvestmentExperience;
-import com.wl2c.elswhereuserservice.domain.user.model.InvestmentPreferredPeriod;
-import com.wl2c.elswhereuserservice.domain.user.model.RiskTakingAbility;
+import com.wl2c.elswhereuserservice.domain.user.model.RepaymentOption;
+import com.wl2c.elswhereuserservice.domain.user.model.RiskPropensity;
 import com.wl2c.elswhereuserservice.global.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.math.BigDecimal;
 
 import static jakarta.persistence.EnumType.STRING;
 
@@ -33,31 +35,40 @@ public class InvestmentPropensity extends BaseEntity {
     private InvestmentExperience investmentExperience;
 
     @Enumerated(STRING)
-    private InvestmentPreferredPeriod investmentPreferredPeriod;
+    private RiskPropensity riskPropensity;
 
     @Enumerated(STRING)
-    private RiskTakingAbility riskTakingAbility;
+    private RepaymentOption repaymentOption;
+
+    private BigDecimal minPreferredReturn;
 
     @Builder
     public InvestmentPropensity(User user,
                                 InvestmentExperience investmentExperience,
-                                InvestmentPreferredPeriod investmentPreferredPeriod,
-                                RiskTakingAbility riskTakingAbility) {
+                                RiskPropensity riskPropensity,
+                                RepaymentOption repaymentOption,
+                                BigDecimal minPreferredReturn) {
         this.user = user;
         this.investmentExperience = investmentExperience;
-        this.investmentPreferredPeriod = investmentPreferredPeriod;
-        this.riskTakingAbility = riskTakingAbility;
+        this.riskPropensity = riskPropensity;
+        this.repaymentOption = repaymentOption;
+        this.minPreferredReturn = minPreferredReturn;
     }
 
     public void changeInvestmentExperience(InvestmentExperience investmentExperience) {
         this.investmentExperience = investmentExperience;
     }
 
-    public void changeInvestmentPreferredPeriod(InvestmentPreferredPeriod investmentPreferredPeriod) {
-        this.investmentPreferredPeriod = investmentPreferredPeriod;
+    public void changeRiskPropensity(RiskPropensity riskPropensity) {
+        this.riskPropensity = riskPropensity;
     }
 
-    public void changeRiskTakingAbility(RiskTakingAbility riskTakingAbility) {
-        this.riskTakingAbility = riskTakingAbility;
+    public void changeRepaymentOption(RepaymentOption repaymentOption) {
+        this.repaymentOption = repaymentOption;
     }
+
+    public void changeMinPreferredReturn(BigDecimal minPreferredReturn) {
+        this.minPreferredReturn = minPreferredReturn;
+    }
+
 }
