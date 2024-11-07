@@ -2,7 +2,7 @@ package com.wl2c.elswhereuserservice.domain.user.service;
 
 import com.wl2c.elswhereuserservice.client.product.api.ProductServiceClient;
 import com.wl2c.elswhereuserservice.client.product.dto.request.RequestProductIdListDto;
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
+import com.wl2c.elswhereuserservice.client.product.dto.list.SummarizedProductDto;
 import com.wl2c.elswhereuserservice.client.product.exception.ProductNotFoundException;
 import com.wl2c.elswhereuserservice.domain.user.exception.AlreadyInterestException;
 import com.wl2c.elswhereuserservice.domain.user.exception.InterestNotFoundException;
@@ -73,16 +73,16 @@ public class UserInterestService {
 
         log.info("Before call the product microservice");
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("interestReadCircuitBreaker");
-        List<ResponseSummarizedProductDto> responseSummarizedProductDtoList =
+        List<SummarizedProductDto> summarizedProductDtoList =
                 circuitBreaker.run(() -> productServiceClient.listByProductIds(new RequestProductIdListDto(productIdList)),
                 throwable -> new ArrayList<>());
         log.info("after called the product microservice");
 
         List<SummarizedUserInterestDto> result = new ArrayList<>();
         for (Interest interest : interestList) {
-            for (ResponseSummarizedProductDto responseSummarizedProductDto : responseSummarizedProductDtoList) {
-                if (interest.getProductId().equals(responseSummarizedProductDto.getId())) {
-                    result.add(new SummarizedUserInterestDto(interest.getId(), responseSummarizedProductDto));
+            for (SummarizedProductDto summarizedProductDto : summarizedProductDtoList) {
+                if (interest.getProductId().equals(summarizedProductDto.getId())) {
+                    result.add(new SummarizedUserInterestDto(interest.getId(), summarizedProductDto));
                     break;
                 }
             }

@@ -1,5 +1,6 @@
 package com.wl2c.elswhereuserservice.client.analysis.api;
 
+import com.wl2c.elswhereuserservice.client.analysis.dto.request.RequestInvestmentPropensityInformationDto;
 import com.wl2c.elswhereuserservice.client.analysis.dto.response.ResponsePriceRatioDto;
 import com.wl2c.elswhereuserservice.client.product.dto.request.RequestProductIdListDto;
 import jakarta.validation.Valid;
@@ -16,4 +17,8 @@ public interface AnalysisServiceClient {
     @PostMapping("/v1/product/price/ratio/list")
     List<ResponsePriceRatioDto> getPriceRatioList(@Valid @RequestBody RequestProductIdListDto requestProductIdListDto,
                                                   @RequestHeader("requestId") String requestId);
+
+    @PostMapping("/v1/investment-propensity/list")
+    List<Long> getSatisfiedInvestmentPropensityProducts(@Valid @RequestBody RequestInvestmentPropensityInformationDto requestInvestmentPropensityInformationDto);
+
 }

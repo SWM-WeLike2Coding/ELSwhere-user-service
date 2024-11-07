@@ -1,6 +1,6 @@
 package com.wl2c.elswhereuserservice.domain.user.controller;
 
-import com.wl2c.elswhereuserservice.client.product.dto.response.ResponseSummarizedProductDto;
+import com.wl2c.elswhereuserservice.client.product.dto.list.SummarizedProductDto;
 import com.wl2c.elswhereuserservice.domain.user.service.UserProductLikeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +39,7 @@ public class UserProductLikeController {
      * @return 사용자가 좋아요한 관심 상품 리스트
      */
     @GetMapping
-    public List<ResponseSummarizedProductDto> findLikedProducts(HttpServletRequest request) {
+    public List<SummarizedProductDto> findLikedProducts(HttpServletRequest request) {
         return userProductLikeService.findLikedProducts(parseLong(request.getHeader("requestId")));
     }
 }
